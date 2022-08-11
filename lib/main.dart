@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Image Classification',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.green,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future getImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       _image = File(pickedFile!.path);
@@ -75,45 +75,56 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TfLite Flutter Helper',
-            style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'insects Classification',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
       ),
-      body: Column(
-        children: <Widget>[
-          Center(
-            child: _image == null
-                ? const Text('No image selected.')
-                : Container(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height / 2),
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                    ),
-                    child: _imageWidget,
-                  ),
+      body: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              Center(
+                child: _image == null
+                    ? const Text('No image selected.')
+                    : Container(
+                        constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(context).size.height / 2),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                        ),
+                        child: _imageWidget,
+                      ),
+              ),
+              const SizedBox(
+                height: 36,
+              ),
+              Text(
+                category != null ? category!.label : '',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Text(
+                category != null
+                    ? 'Confidence: ${(100 * category!.score).toStringAsFixed(2)}%'
+                    : '',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
           ),
-          const SizedBox(
-            height: 36,
-          ),
-          Text(
-            category != null ? category!.label : '',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          Text(
-            category != null
-                ? 'Confidence: ${category!.score.toStringAsFixed(3)}'
-                : '',
-            style: const TextStyle(fontSize: 16),
-          ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: getImage,
         tooltip: 'Pick Image',
-        child: const Icon(Icons.add_a_photo),
+        child: const Icon(Icons.image),
       ),
     );
   }

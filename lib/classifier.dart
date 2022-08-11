@@ -21,9 +21,10 @@ abstract class Classifier {
   late TfLiteType _inputType;
   late TfLiteType _outputType;
 
-  final String _labelsFileName = 'assets/labels.txt';
-
-  final int _labelsLength = 1001;
+  //final String _labelsFileName = 'assets/labels.txt';
+  final String _labelsFileName = 'assets/insects_labels.txt';
+  final int _labelsLength = 1022;
+  //
 
   late var _probabilityProcessor;
 
@@ -66,10 +67,11 @@ abstract class Classifier {
 
   Future<void> loadLabels() async {
     labels = await FileUtil.loadLabels(_labelsFileName);
+    print(labels.length);
     if (labels.length == _labelsLength) {
       print('Labels loaded successfully');
     } else {
-      print('Unable to load labels');
+      print('Unable to load labels maybe label length issue');
     }
   }
 
@@ -91,19 +93,20 @@ abstract class Classifier {
     _inputImage = _preProcess();
     final pre = DateTime.now().millisecondsSinceEpoch - pres;
 
-    print('Time to load image: $pre ms');
+    logger.d('Time to load image: $pre ms');
 
     final runs = DateTime.now().millisecondsSinceEpoch;
     interpreter.run(_inputImage.buffer, _outputBuffer.getBuffer());
     final run = DateTime.now().millisecondsSinceEpoch - runs;
 
-    print('Time to run inference: $run ms');
+    logger.d('Time to run inference: $run ms');
 
     Map<String, double> labeledProb = TensorLabel.fromList(
             labels, _probabilityProcessor.process(_outputBuffer))
         .getMapWithFloatValue();
+    //logger.d(labeledProb);
     final pred = getTopProbability(labeledProb);
-
+    logger.d(pred);
     return Category(pred.key, pred.value);
   }
 
